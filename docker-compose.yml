@@ -3,6 +3,7 @@ version: '2'
 services:
   elasticsearch:
     build: elasticsearch/
+    image: elasticsearch:crazw
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -17,6 +18,7 @@ services:
 
   logstash:
     build: logstash/
+    image: logstash:crazw
     command: -f /etc/logstash/conf.d/
     volumes:
       - ./logstash/config:/etc/logstash/conf.d
@@ -34,6 +36,7 @@ services:
 
   kibana:
     build: kibana/
+    image: kibana:crazw
     volumes:
       - ./kibana/config/:/opt/kibana/config/
     ports:
