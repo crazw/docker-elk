@@ -6,10 +6,15 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
+    volumes:
+        - ./elasticsearch/config:/usr/share/elasticsearch/config
+        - ./elasticsearch/esdata:/usr/share/elasticsearch/data
+
     environment:
       ES_JAVA_OPTS: "-Xms1g -Xmx1g"
     networks:
       - docker_elk
+
   logstash:
     build: logstash/
     command: -f /etc/logstash/conf.d/
@@ -17,14 +22,24 @@ services:
       - ./logstash/config:/etc/logstash/conf.d
     ports:
       - "5000:5000"
+      - "5044:5044"
+    environment:
+        - LS_HEAP_SIZE=1024m
     networks:
       - docker_elk
+    links:
+        - elasticsearch
+    environment:
+        - LS_JAVA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=18080 -Dcom.sun.management.jmxremote.rmi.port=18080 -Djava.rmi.server.hostname=DOCKER_HOST_IP -Dcom.sun.management.jmxremote.local.only=false
+
   kibana:
     build: kibana/
     volumes:
       - ./kibana/config/:/opt/kibana/config/
     ports:
       - "5601:5601"
+    links:
+        - elasticsearch:elasticsearch
     networks:
       - docker_elk
 
